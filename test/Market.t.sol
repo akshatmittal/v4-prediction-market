@@ -101,9 +101,9 @@ contract MarketTest is Test {
         collateralToken.approve(address(market), fundingAmount * 2);
         uint cost = market.buy(0, 10, 100);
 
-        // FAILS HERE!
-        // tradeImpl tries to transfer 115792089237316195423570985008687907853269984665640564039457584007913129639934
-        collateralToken.approve(address(market), fundingAmount);
+        OutcomeToken[] memory ots = eventContract.getOutcomeTokens();
+        ots[0].approve(address(market), fundingAmount);
+        // collateralToken.approve(address(market), fundingAmount);
         uint profit = market.sell(0, 5, 1);
         vm.stopPrank();
         assertGt(profit, 0);
