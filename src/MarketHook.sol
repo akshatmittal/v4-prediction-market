@@ -7,9 +7,9 @@ import { Hooks } from "v4-core/src/libraries/Hooks.sol";
 import { IPoolManager } from "v4-core/src/interfaces/IPoolManager.sol";
 import { PoolKey } from "v4-core/src/types/PoolKey.sol";
 import { PoolId, PoolIdLibrary } from "v4-core/src/types/PoolId.sol";
-import { CurrencySettleTake } from "v4-core/src/libraries/CurrencySettleTake.sol";
+import { Currency, CurrencySettleTake } from "v4-core/src/libraries/CurrencySettleTake.sol";
 import { BalanceDelta } from "v4-core/src/types/BalanceDelta.sol";
-import { BeforeSwapDelta, BeforeSwapDeltaLibrary } from "v4-core/src/types/BeforeSwapDelta.sol";
+import { BeforeSwapDelta, BeforeSwapDeltaLibrary, toBeforeSwapDelta } from "v4-core/src/types/BeforeSwapDelta.sol";
 import { Market } from "./prediction-market/Market.sol";
 import { Event } from "./prediction-market/Event.sol";
 
@@ -50,7 +50,7 @@ contract MarketHook is BaseHook {
 
     function beforeInitialize(address, PoolKey calldata key, uint160, bytes calldata hookData)
         external
-        virtual
+        override
         returns (bytes4)
     {
         MarketInitialData memory data = abi.decode(hookData, (MarketInitialData));
@@ -74,22 +74,22 @@ contract MarketHook is BaseHook {
             int128(params.amountSpecified) // TODO: calculate this
         );
 
-        MarketInitialData memory data = marketData[key.toId()];
-        ERC20 collateralToken = data.eventContract.collateralToken();
+        // MarketInitialData memory data = marketData[key.toId()];
+        // ERC20 collateralToken = data.eventContract.collateralToken();
 
-        if (params.zeroForOne) {
-            key.currency0.take(poolManager, address(this), amountInPositive, false);
-            if (address(key.currency0) == address(collateralToken)) {
-                // We are buying the outcome token here.
-                collateralToken.approve(data.market);
-            }
-            // TODO: Convert from token0 to token1 via Market
-            key.currency1.settle(poolManager, address(this), amountInPositive, false);
-        } else {
-            key.currency0.settle(poolManager, address(this), amountInPositive, false);
-            // TODO: Convert from token1 to token0 via Market
-            key.currency1.take(poolManager, address(this), amountInPositive, false);
-        }
+        // if (params.zeroForOne) {
+        //     key.currency0.take(poolManager, address(this), amountInPositive, false);
+        //     if (address(key.currency0) == address(collateralToken)) {
+        //         // We are buying the outcome token here.
+        //         collateralToken.approve(data.market);
+        //     }
+        //     // TODO: Convert from token0 to token1 via Market
+        //     key.currency1.settle(poolManager, address(this), amountInPositive, false);
+        // } else {
+        //     key.currency0.settle(poolManager, address(this), amountInPositive, false);
+        //     // TODO: Convert from token1 to token0 via Market
+        //     key.currency1.take(poolManager, address(this), amountInPositive, false);
+        // }
 
         return (BaseHook.beforeSwap.selector, beforeSwapDelta, 0);
     }
