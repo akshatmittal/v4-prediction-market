@@ -13,6 +13,8 @@ import { BeforeSwapDelta, BeforeSwapDeltaLibrary } from "v4-core/src/types/Befor
 import { Constants } from "v4-core/test/utils/Constants.sol";
 import { TickMath } from "v4-core/src/libraries/TickMath.sol";
 
+// import "forge-std/console2.sol";
+
 contract TradeLimitHook is BaseHook {
     using PoolIdLibrary for PoolKey;
     // using CurrencySettleTake for Currency;
@@ -30,7 +32,7 @@ contract TradeLimitHook is BaseHook {
             beforeRemoveLiquidity: false,
             afterRemoveLiquidity: false,
             beforeSwap: false,
-            afterSwap: false,
+            afterSwap: true,
             beforeDonate: false,
             afterDonate: false,
             beforeSwapReturnDelta: false,
@@ -51,8 +53,17 @@ contract TradeLimitHook is BaseHook {
         return BaseHook.beforeInitialize.selector;
     }
 
-    // TODO: Add beforeSwap hook to validate trade and override limits
-    // TODO: Add trade blocking after market has ended once contract is available
+    function afterSwap(
+        address sender,
+        PoolKey calldata key,
+        IPoolManager.SwapParams calldata params,
+        BalanceDelta delta,
+        bytes calldata hookData
+    ) external override returns (bytes4, int128) {
+        // TODO: Add check here.
+
+        return (BaseHook.afterSwap.selector, 0);
+    }
 
     function beforeAddLiquidity(
         address,
@@ -61,8 +72,9 @@ contract TradeLimitHook is BaseHook {
         bytes calldata
     ) external override returns (bytes4) {
         // Bound liquidity provision to a specific price range
-        require(params.tickLower >= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_2_1));
-        require(params.tickUpper <= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_1_2));
+        // These can theoretically be any tick range, these are just known good values
+        require(params.tickLower >= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_1_2));
+        require(params.tickUpper <= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_2_1));
 
         return BaseHook.beforeAddLiquidity.selector;
     }

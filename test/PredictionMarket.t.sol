@@ -5,11 +5,7 @@ import "forge-std/Test.sol";
 import "../src/PredictionMarket.sol";
 
 contract MockUSDC is ERC20 {
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals
-    ) ERC20(name, symbol) {}
+    constructor(string memory name, string memory symbol, uint8 decimals) ERC20(name, symbol) { }
 
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
@@ -30,7 +26,7 @@ contract PredictionMarketTest is Test {
         MockUSDC(address(usdcToken)).mint(user1, 1000 * 10 ** 6);
         MockUSDC(address(usdcToken)).mint(user2, 1000 * 10 ** 6);
 
-        predictionMarket = new PredictionMarket(usdcToken, 4);
+        predictionMarket = new PredictionMarket(address(usdcToken), 4);
     }
 
     function testMint() public {
