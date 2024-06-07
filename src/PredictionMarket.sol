@@ -15,6 +15,11 @@ contract OutcomeToken is ERC20, Ownable {
     function mint(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
     }
+
+    function decimals() public view override returns (uint8) {
+        // Matches USDC decimals
+        return 6;
+    }
 }
 
 contract PredictionMarket is Ownable {
