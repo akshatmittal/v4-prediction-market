@@ -54,6 +54,16 @@ contract PredictionMarket is Ownable {
         }
     }
 
+    function redeem(uint256 amount) external {
+        // Opposite of mint:
+        // let users exchange equal amounts of all outcome tokens
+        // for the collateral token
+        for (uint256 i = 0; i < outcomeTokens.length; i++) {
+            outcomeTokens[i].transferFrom(msg.sender, address(this), amount);
+        }
+        usdcToken.safeTransfer(msg.sender, amount);
+    }
+
     function setWinner(uint256 _winningOutcome) external onlyOwner {
         require(
             _winningOutcome < outcomeTokens.length,
