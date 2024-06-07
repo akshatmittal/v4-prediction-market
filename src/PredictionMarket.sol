@@ -31,8 +31,8 @@ contract PredictionMarket is Ownable {
         uint256 _numberOfOutcomes
     ) Ownable(msg.sender) {
         require(
-            _numberOfOutcomes > 1 && _numberOfOutcomes % 2 == 0,
-            "Number of outcomes should be an even number and greater than 1"
+            _numberOfOutcomes > 1,
+            "Number of outcomes should be greater than 1"
         );
         usdcToken = _usdcToken;
 
