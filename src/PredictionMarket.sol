@@ -7,13 +7,16 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 contract OutcomeToken is ERC20, Ownable {
-    constructor(string memory name, string memory symbol) ERC20(name, symbol) Ownable(msg.sender) { }
+    constructor(
+        string memory name,
+        string memory symbol
+    ) ERC20(name, symbol) Ownable(msg.sender) {}
 
     function mint(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
     }
 
-    function decimals() public view override returns (uint8) {
+    function decimals() public pure override returns (uint8) {
         // Matches USDC decimals
         return 6;
     }
@@ -28,13 +31,22 @@ contract PredictionMarket is Ownable {
     uint256 public winningOutcome;
     bool public winnerSet = false;
 
-    constructor(address _usdcToken, uint256 _numberOfOutcomes) Ownable(msg.sender) {
-        require(_numberOfOutcomes > 1, "Number of outcomes should be greater than 1");
+    constructor(
+        address _usdcToken,
+        uint256 _numberOfOutcomes
+    ) Ownable(msg.sender) {
+        require(
+            _numberOfOutcomes > 1,
+            "Number of outcomes should be greater than 1"
+        );
         usdcToken = IERC20(_usdcToken);
 
         for (uint256 i = 0; i < _numberOfOutcomes; i++) {
             string memory strI = Strings.toString(i);
-            OutcomeToken newToken = new OutcomeToken(string.concat("Outcome Token", strI), string.concat("OT", strI));
+            OutcomeToken newToken = new OutcomeToken(
+                string.concat("Outcome Token", strI),
+                string.concat("OT", strI)
+            );
             outcomeTokens.push(newToken);
         }
     }
@@ -58,7 +70,10 @@ contract PredictionMarket is Ownable {
     }
 
     function setWinner(uint256 _winningOutcome) external onlyOwner {
-        require(_winningOutcome < outcomeTokens.length, "Invalid outcome index");
+        require(
+            _winningOutcome < outcomeTokens.length,
+            "Invalid outcome index"
+        );
         require(!winnerSet, "Winner already set");
         winningOutcome = _winningOutcome;
         winnerSet = true;
