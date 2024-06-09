@@ -12,6 +12,7 @@ import { BalanceDelta } from "v4-core/src/types/BalanceDelta.sol";
 import { BeforeSwapDelta, BeforeSwapDeltaLibrary } from "v4-core/src/types/BeforeSwapDelta.sol";
 import { Constants } from "v4-core/test/utils/Constants.sol";
 import { TickMath } from "v4-core/src/libraries/TickMath.sol";
+import { PredictionMarket } from "./PredictionMarket.sol";
 
 // import "forge-std/console2.sol";
 
@@ -20,6 +21,8 @@ contract TradeLimitHook is BaseHook {
     // using CurrencySettleTake for Currency;
 
     error NotAllowed();
+
+    mapping(PoolId => PredictionMarket) public markets;
 
     constructor(IPoolManager _poolManager) BaseHook(_poolManager) { }
 
@@ -50,6 +53,9 @@ contract TradeLimitHook is BaseHook {
         // Require starting price to be 1:1
         require(sqrtPriceX96 == Constants.SQRT_PRICE_1_1, "TradeLimitHook: Invalid sqrtPriceX96");
 
+        address market = abi.decode(hookData, (address));
+        markets[key.toId()] = PredictionMarket(market);
+
         return BaseHook.beforeInitialize.selector;
     }
 
@@ -60,7 +66,7 @@ contract TradeLimitHook is BaseHook {
         BalanceDelta delta,
         bytes calldata hookData
     ) external override returns (bytes4, int128) {
-        // TODO: Add check here.
+        require(markets[key.toId()].winnerSet() == false);
 
         return (BaseHook.afterSwap.selector, 0);
     }
@@ -73,8 +79,8 @@ contract TradeLimitHook is BaseHook {
     ) external override returns (bytes4) {
         // Bound liquidity provision to a specific price range
         // These can theoretically be any tick range, these are just known good values
-        require(params.tickLower >= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_1_2));
-        require(params.tickUpper <= TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_2_1));
+        require(params.tickLower == TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_1_2));
+        require(params.tickUpper == TickMath.getTickAtSqrtPrice(Constants.SQRT_PRICE_2_1));
 
         return BaseHook.beforeAddLiquidity.selector;
     }
