@@ -6,7 +6,7 @@ All current Prediction Markets built onchain are based on outcome balancing via 
 
 AMMs are inherently superior to order book based markets in terms of liquidity and ease of use. This is why we are proposing a new type of Prediction Market that uses Uniswap V4 as the core liquidity provider.
 
-TODO: Create Sequence Diagram. (wip)
+Links: [Google Doc](https://docs.google.com/document/d/15qUy6l46U3SvTLFDROUJ4Olyd00WRl2oIMNsjYOLz50/edit?usp=sharing) | [YouTube Video](https://www.youtube.com/watch?v=dcGOpjjed8I) | [GitHub Repo](https://github.com/akshatmittal/v4-prediction-market)
 
 ## How does the market work?
 
@@ -27,8 +27,6 @@ The hook is used for specific actions related to the market. It is initially use
 ## EigenLayer AVS
 
 One of the core requirements for a Prediction Market is the ability to resolve the market. This is done via EigenLayer AVS, which given it's decentralized nature is able to provide a reliable and secure resolution for the market. The operators stake on the `Manager` contract which is then able to accept resolutions and run `DisputeGameFactory` based on attestations.
-
-(TODO: Expand on how `DisputeGameFactory` works, although AVS docs already have the slashing information)
 
 ## Features
 
